@@ -1,0 +1,16 @@
+python-dotenv
+pandas
+polars
+pyarrow
+delta-spark
+pytest
+pylint[spelling]
+fastapi
+pydantic
+uvicorn
+torch
+torchvision
+torchaudio
+scikit-learn
+tqdm
+matplotlib
