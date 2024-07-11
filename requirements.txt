@@ -2,7 +2,7 @@ python-dotenv
 pandas
 polars
 pyarrow
-delta-spark
+deltalake
 pytest
 pylint[spelling]
 fastapi

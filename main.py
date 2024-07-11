@@ -12,7 +12,7 @@ import torch.nn as nn
 
 
 # setup loggers
-logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
+# logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
 
 # get root logger
 logger = logging.getLogger(__name__)

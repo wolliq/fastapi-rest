@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-rest
+  labels:
+    app: fastapi-rest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi-rest
+  template:
+    metadata:
+      labels:
+        app: fastapi-rest
+    spec:
+      containers:
+      - name: fastapi-rest
+        image: fastapi-rest:dev
+        ports:
+        - containerPort: 8000

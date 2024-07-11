@@ -4,14 +4,11 @@ FROM python:3.9-slim-buster
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the requirements file
-COPY requirements.txt .
+# Copy the files
+COPY . .
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the application code to the container
-COPY main.py .
 
 # Expose the app's port
 EXPOSE 8000
