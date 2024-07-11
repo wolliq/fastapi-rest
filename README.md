@@ -33,9 +33,14 @@ NAME                            READY   STATUS    RESTARTS   AGE
 fastapi-rest-7c4787b5fd-wpffj   1/1     Running   0          4s
 ```
 
+The exec a port forward
+```
+kubectl port-forward fastapi-rest-7c4787b5fd-bdpzb 8080:8000
+```
+
 Then hit
 ```
-http://0.0.0.0:8000/docs
+http://0.0.0.0:8080/docs
 ```
 
 and POST a data vector of 8 elements as follow
