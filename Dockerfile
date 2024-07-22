@@ -1,4 +1,3 @@
-# Use the official PyTorch base image
 FROM python:3.11-slim-buster
 
 # Set the working directory inside the container

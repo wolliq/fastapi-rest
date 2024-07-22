@@ -11,3 +11,4 @@ uvicorn
 scikit-learn
 google-cloud-bigquery
 fastapi-code-generator
+httpx[cli]
