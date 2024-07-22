@@ -1,0 +1,83 @@
+openapi: 3.0.3
+info:
+  title: SMG GM Data Team - Data Engineer Python API Exercise
+  description: This is a simple REST API containing two endpoints. This API allows you to get a sentence with the encrypted version of it (with rot13), but also add new sentences in the existing store.
+  version: 1.0.0
+
+paths:
+  /sentences/{sentenceId}:
+    get:
+      tags:
+      - sentence
+      summary: Get a sentence and its encrypted version
+      description: Get a sentence by Id and the rot13 encryption of it
+      parameters:
+        - name: sentenceId
+          in: path
+          description: ID of sentence to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentenceWithCypher'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Sentence not found
+  /sentences/:
+    post:
+      tags:
+      - sentence
+      summary: Add a new sentence to the store
+      description: Add a new sentence to the store
+      requestBody:
+        description: Create a new sentence in the store and return it with its encrypted version
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sentence'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentenceWithCypher'
+        '405':
+          description: Invalid input
+
+components:
+  schemas:
+    Sentence:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        text:
+          type: string
+          description: text contained in the sentence
+          example: super movie title
+    SentenceWithCypher:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        text:
+          type: string
+          description: text contained in the sentence
+          example: super movie title
+        cyphered_text:
+          type: string
+          description: cyphered text with rot13
+          example: fhcre zbivr gvgyr
