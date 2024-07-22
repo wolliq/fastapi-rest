@@ -1,4 +1,4 @@
-python-dotenv
+python-dotenv[cli]
 pandas
 polars
 pyarrow

@@ -1,30 +1,71 @@
-# Fast API scorer
+# FastAPI - Sentence API
 
-Simple Fast API example to load a PyTorch model and score an input tensor (vector of 8 values).
+Welcome to the Sentence API for SMG.
+It contains a simple REST API
 
-# How to run
-- Install just lib
-- launch
+# How to test locally
+- Launch
 ```
-just build
+$ fastapi dev app/main.py
+```
+and you should see
+```
+ ╭────────── FastAPI CLI - Development mode ───────────╮                                                                                                                                 
+ │                                                     │                                                                                                                                 
+ │  Serving at: http://127.0.0.1:8000                  │                                                                                                                                 
+ │                                                     │                                                                                                                                 
+ │  API docs: http://127.0.0.1:8000/docs               │                                                                                                                                 
+ │                                                     │                                                                                                                                 
+ │  Running in development mode, for production use:   │                                                                                                                                 
+ │                                                     │                                                                                                                                 
+ │  fastapi run                                        │                                                                                                                                 
+ │                                                     │                                                                                                                                 
+ ╰─────────────────────────────────────────────────────╯ 
+```
+- Connect to http://127.0.0.1:8000/docs to access the Swagger UI
+
+# How to test locally
+Supposing you have filled a BigQuery table, schema as in the test dataset.
+You can directly target the endpoint using a curl command:
+```
+curl -X 'GET' \
+  'http://127.0.0.1:8000/sentences/10' \
+  -H 'accept: application/json'
+```
+which will reply something like
+```
+{
+  "id": 10,
+  "text": "super movie title",
+  "cyphered_text": "fhcre zbivr gvgyr"
+}
+```
+
+# How to deploy
+## Docker
+- Install Docker (https://docs.docker.com/engine/install/)
+- Install just (https://github.com/casey/just)
+- Then, launch
+```
+$ just build
 ```
 to build the image locally
 
 - Docker launch
 ```
-just run
+$ just run
 ```
 to run the docker image locally.
 
 - Kubernetes launch (Docker Desktop)
 ```
-kubectl apply -f service.yaml
-kubectl apply -f deployment.yaml
+$ kubectl apply -f service.yaml
+$ kubectl apply -f deployment.yaml
 ```
 
 Then you can check pods:
 ```
-kubectl get pods
+$ kubectl get pods
 ```
 
 to see
@@ -35,7 +76,7 @@ fastapi-rest-7c4787b5fd-wpffj   1/1     Running   0          4s
 
 The exec a port forward
 ```
-kubectl port-forward fastapi-rest-7c4787b5fd-bdpzb 8080:8000
+$ kubectl port-forward fastapi-rest-7c4787b5fd-bdpzb 8080:8000
 ```
 
 Then hit
@@ -43,42 +84,4 @@ Then hit
 http://0.0.0.0:8080/docs
 ```
 
-and POST a data vector of 8 elements as follow
-```
-{
-  "data": [
-    0.1,0.2,0.3,0.4,0.1,0.2,0.3,0.4
-  ]
-}
-```
-
-You should see a prediction showing up
-```
-{
-  "predictions": [
-    0.09620699286460876
-  ]
-}
-```
-
-You can also directlyy target the endpoint using a curl command:
-```
-curl -X 'POST' \
-  'http://0.0.0.0:8000/score' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "data": [
-    0.1,0.2,0.3,0.4,0.1,0.2,0.3,0.4
-  ]
-}'
-```
-which will reply
-```
-{"predictions":[0.09620698541402817]}
-```
-
-# Retraining
-You can also retrain the model using different parameters in the trainer.py file.
-
-Enjoy!
+and play with the Swagger UI.

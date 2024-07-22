@@ -8,14 +8,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: fastapi-rest
+      app: fastapi-rest-smg
   template:
     metadata:
       labels:
-        app: fastapi-rest
+        app: fastapi-rest-smg
     spec:
       containers:
-      - name: fastapi-rest
-        image: fastapi-rest:dev
+      - name: fastapi-rest-smg
+        image: fastapi-rest-smg:dev
         ports:
         - containerPort: 8000

@@ -1,5 +1,5 @@
 # https://github.com/casey/just
-image_name := 'fastapi-rest:dev'
+image_name := 'fastapi-rest-smg:dev'
 
 build:
     docker build -t {{image_name}} .

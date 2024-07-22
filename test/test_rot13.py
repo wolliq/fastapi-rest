@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.main import app
+from src.main import app
 
-from app.main import encode
+from src.main import encode
 
 import codecs
 

@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Path
 from google.cloud import bigquery
 
-from app.models import Sentence, SentenceWithCypher
+from src.models import Sentence, SentenceWithCypher
 
 load_dotenv()
 
@@ -48,19 +48,19 @@ def with_cypher_col(df: pd.DataFrame) -> SentenceWithCypher:
     """Apply the encoding to the input DataFrame object.
 
     Args:
-        df (pd.DataFrame): the input DataFrame object containing id and text columns.
+        df (pd.DataFrame): the input DataFrame object containing 1 row with id and text columns.
 
     Returns:
-        df (pd.DataFrame): the output DataFrame object containing the encoded text.
+        res (SentenceWithCypher): the mapped output SentenceWithCypher object.
     """
     df["cyphered_text"] = df["text"].apply(encode)
-    # serialize into the return type
+
     res = [
         SentenceWithCypher(id=row.id, text=row.text, cyphered_text=row.cyphered_text)
         for row in df.itertuples()
     ]
-    out = res[0]
-    return out
+
+    return res[0]
 
 
 @app.post("/sentences/", response_model=SentenceWithCypher, tags=["sentence"])
