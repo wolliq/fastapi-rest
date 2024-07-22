@@ -3,7 +3,7 @@
 Welcome to the Sentence API for SMG.
 It contains a simple REST API
 
-# How to test locally
+# How to run locally
 
 - Set GCloud account in your .env file
 ```
