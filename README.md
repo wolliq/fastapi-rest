@@ -68,6 +68,7 @@ $ just run
 ```
 to run the docker image locally.
 
+## Kubernetes
 - Kubernetes launch (Docker Desktop)
 ```
 $ kubectl apply -f service.yaml
