@@ -4,6 +4,17 @@ Welcome to the Sentence API for SMG.
 It contains a simple REST API
 
 # How to test locally
+
+- Set GCloud account in your .env file
+```
+# Development settings
+PROJECT_ID="YOUR_PROJECT_ID"
+DATASET_ID="YOUR_DATASET_ID"
+TABLE_ID="YOUR_TABLE_ID"
+
+GOOGLE_APPLICATION_CREDENTIALS="PATH_TO_GCLOUD_JSON_FILE"
+```
+
 - Launch
 ```
 $ fastapi dev app/main.py
