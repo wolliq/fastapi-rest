@@ -3,14 +3,18 @@
 from __future__ import annotations
 
 import codecs
+import logging
 import os
 
+import polars as pl
 import pandas as pd
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Path
 from google.cloud import bigquery
 
 from src.models import Sentence, SentenceWithCypher
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -22,12 +26,12 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# comment this line to run without gcloud auth (test deployment)
-client = bigquery.Client()
-
 PROJECT_ID = os.environ.get("PROJECT_ID")
 DATASET_ID = os.environ.get("DATASET_ID")
 TABLE_ID = os.environ.get("TABLE_ID")
+
+# comment this line to run without gcloud auth (test deployment)
+client = bigquery.Client(project=PROJECT_ID)
 
 TABLE_PATH = f"{PROJECT_ID}.{DATASET_ID}.{TABLE_ID}"
 
@@ -54,7 +58,9 @@ def with_cypher_col(df: pd.DataFrame) -> SentenceWithCypher:
     Returns:
         res (SentenceWithCypher): the mapped output SentenceWithCypher object.
     """
-    df["cyphered_text"] = df["text"].apply(encode)
+    df["cyphered_text"] = df["text"].apply(lambda s: encode(s))
+
+    logging.warning(df.head())
 
     res = [
         SentenceWithCypher(id=row.id, text=row.text, cyphered_text=row.cyphered_text)
@@ -65,7 +71,7 @@ def with_cypher_col(df: pd.DataFrame) -> SentenceWithCypher:
 
 
 @app.post("/sentences/", response_model=SentenceWithCypher, tags=["sentence"])
-async def post_sentence(body: Sentence) -> SentenceWithCypher:
+def post_sentence(body: Sentence) -> SentenceWithCypher:
     """Create a new sentence in the store and return it with its encrypted version.
 
     Args:
@@ -78,25 +84,21 @@ async def post_sentence(body: Sentence) -> SentenceWithCypher:
         raise HTTPException(status_code=405, detail="Invalid input.")
 
     # build a data dictionary
-    rows_to_insert = [
-        {"id": body.id, "text": body.text},
-    ]
+    rows_to_insert = {"id": body.id, "text": body.text}
 
     # inserts simple rows into a table using the streaming API (insertAll).
-    errors = client.insert_rows_json(TABLE_PATH, rows_to_insert)
+    errors = client.insert_rows_json(TABLE_PATH, [rows_to_insert])
 
     if not errors:
-        df = pd.DataFrame.from_dict(rows_to_insert[0])
+        df = pl.from_dicts(rows_to_insert).to_pandas()
         res = with_cypher_col(df)
         return res
-
-    raise HTTPException(status_code=500, detail="Unable to insert rows.")
 
 
 @app.get(
     "/sentences/{sentenceId}", response_model=SentenceWithCypher, tags=["sentence"]
 )
-async def get_sentence_by_sentence_id(
+def get_sentence_by_sentence_id(
     sentence_id: int = Path(..., alias="sentenceId")
 ) -> SentenceWithCypher:
     """Get a sentence by ID and the rot13 encryption of it.
@@ -113,17 +115,19 @@ async def get_sentence_by_sentence_id(
 
     # hypothesis - only 1 row returned
     sql = f"""
-        SELECT id, text
-        FROM {TABLE_PATH}
-        WHERE id = '{sentence_id}'
+        SELECT t.id, t.text
+        FROM `{TABLE_PATH}` as t
+        WHERE t.id = {sentence_id}
     """
 
-    # Execute the query against BigQuery
-    df = client.query_and_wait(sql).to_dataframe()
+    try:
+        # Execute the query against BigQuery
+        df = client.query_and_wait(sql).to_dataframe()
+        # check for sentence retrieval
+        if len(df) == 0:
+            raise HTTPException(status_code=404, detail="Sentence not found.")
 
-    # check for sentence retrieval
-    if len(df) == 0:
-        raise HTTPException(status_code=404, detail="Sentence not found.")
-
-    res = with_cypher_col(df)
-    return res
+        res = with_cypher_col(df)
+        return res
+    except Exception as e:
+        logging.error(f"Error: {e}")
