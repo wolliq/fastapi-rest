@@ -22,7 +22,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-client = bigquery.Client()
+# client = bigquery.Client()
 
 PROJECT_ID = os.environ.get("PROJECT_ID")
 DATASET_ID = os.environ.get("DATASET_ID")
