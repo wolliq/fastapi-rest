@@ -5,6 +5,7 @@ from __future__ import annotations
 import codecs
 import logging
 import os
+import re
 
 import polars as pl
 import pandas as pd
@@ -15,6 +16,7 @@ from google.cloud import bigquery
 from src.models import Sentence, SentenceWithCypher
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 load_dotenv()
 
@@ -80,7 +82,9 @@ def post_sentence(body: Sentence) -> SentenceWithCypher:
     Returns:
         SentenceWithCypher: the corresponding sentence with cypher object.
     """
-    if not int(body.id) and not str(body.text):
+
+    # FIXME 405 method not allowed ?
+    if not isinstance(body.id, int) or bool(re.search(r'[^a-zA-Z0-9\s]', body.text)):
         raise HTTPException(status_code=405, detail="Invalid input.")
 
     # build a data dictionary
@@ -123,11 +127,12 @@ def get_sentence_by_sentence_id(
     try:
         # Execute the query against BigQuery
         df = client.query_and_wait(sql).to_dataframe()
-        # check for sentence retrieval
-        if len(df) == 0:
-            raise HTTPException(status_code=404, detail="Sentence not found.")
-
-        res = with_cypher_col(df)
-        return res
     except Exception as e:
         logging.error(f"Error: {e}")
+
+    # check for sentence retrieval
+    if len(df) == 0:
+        raise HTTPException(status_code=404, detail="Sentence not found.")
+    
+    res = with_cypher_col(df)
+    return res
